@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Automation map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#23221e; --mute:#6c6960; --faint:#9a968c;
+  --line:#e6e2d8; --hover:#faf9f5; --track:#ece9e1; --focus:#3b6fd8; --err:#a33a24; --err-bg:#fbeee9;
+  --btn:#23221e; --btn-ink:#ffffff;
+  --l5:#2f6b3a; --l4:#7d8c2f; --l3:#d29a2c; --l2:#b5573a; --l1:#aaa69c;
+  --l5s:#e3eee4; --l4s:#eef1dc; --l3s:#f8eedb; --l2s:#f5e3dd; --l1s:#efeee9;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#161614; --card:#201f1c; --ink:#ece9e1; --mute:#a5a197; --faint:#7d796f;
+    --line:#34322d; --hover:#272622; --track:#34322d; --focus:#7aa2f7; --err:#f0a08a; --err-bg:#3a221b;
+    --btn:#ece9e1; --btn-ink:#161614;
+    --l5:#5fa36b; --l4:#a7b84e; --l3:#e0ad48; --l2:#d77a5c; --l1:#7f7b72;
+    --l5s:#22332a; --l4s:#2d3220; --l3s:#3a3020; --l2s:#3a2620; --l1s:#2b2a27;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--font)}
+main{max-width:900px;margin:0 auto;padding:40px 16px 96px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.hidden{display:none !important}
+h1{font-size:28px;line-height:1.2;margin:0 0 8px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 6px;max-width:68ch}
+.meta{color:var(--mute);font-size:13px;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:16px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);font-weight:550}
+.btn.primary:hover{opacity:.9}
+.link{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:14px}
+
+/* Input view */
+#input h1{margin-bottom:10px}
+#input p.sub{margin-bottom:22px}
+textarea{width:100%;min-height:320px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:14px;
+  background:var(--card);color:var(--ink);font:13px/1.5 var(--mono)}
+textarea:focus{outline:2px solid var(--focus);outline-offset:0;border-color:transparent}
+label.lbl{display:block;font-weight:600;margin-bottom:8px}
+.actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:14px}
+.hint{color:var(--faint);font-size:13px}
+.file{font-size:14px;color:var(--mute)}
+.file input{font-size:13px;max-width:100%}
+.error{margin-top:14px;background:var(--err-bg);color:var(--err);border-radius:8px;padding:10px 14px;font-size:14px;white-space:pre-wrap}
+
+/* Rendered view */
+.top{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:24px}
+.top .head{flex:1 1 420px;min-width:0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.meta span+span::before{content:"·";margin:0 7px;color:var(--faint)}
+.big{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.pct{font-size:56px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.pcttxt{flex:1 1 260px;font-size:16px}
+.pcttxt .minor{display:block;color:var(--mute);font-size:14px;margin-top:4px}
+.barlabel{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--mute);margin:22px 0 7px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--track);gap:2px}
+.bar div{height:100%}
+.bar.could{height:8px;border-radius:4px;opacity:.85}
+.counts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
+.cnt{border-radius:10px;padding:10px 12px;border-top:4px solid}
+.cnt b{display:block;font-size:24px;line-height:1.1;font-weight:650}
+.cnt span{display:block;font-size:12px;color:var(--mute);line-height:1.3;margin-top:2px}
+.cnt em{font-style:normal;font-size:12px;color:var(--mute);display:block;margin-top:4px}
+.minutes{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
+.minutes b{color:var(--ink);font-weight:600}
+
+.controls{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:28px 0 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:14px;cursor:pointer}
+.chip .n{color:var(--faint);margin-left:6px;font-size:12px}
+.chip.on{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.chip.on .n{color:inherit;opacity:.7}
+.toggles{display:flex;gap:14px}
+.nomatch{color:var(--mute);padding:8px 2px}
+
+.phase{padding:0;overflow:hidden}
+.ph{display:flex;align-items:center;gap:12px;width:100%;padding:16px 20px;background:none;border:0;cursor:pointer;text-align:left}
+.ph:hover{background:var(--hover)}
+.ph h2{font-size:16px;margin:0;flex:1;font-weight:600;min-width:0}
+.caret{width:16px;flex:none;color:var(--mute);transition:transform .15s;display:inline-flex}
+.phase.closed .caret{transform:rotate(-90deg)}
+.phase.closed .rows{display:none}
+.pbar{width:120px;height:6px;background:var(--track);border-radius:3px;overflow:hidden;flex:none}
+.pbar span{display:block;height:100%;background:var(--l5)}
+.xy{font:12px var(--mono);color:var(--mute);flex:none;min-width:44px;text-align:right}
+.rows{border-top:1px solid var(--line)}
+.row{border-left:5px solid var(--l1);padding:11px 18px 11px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--hover)}
+.row:focus-visible{outline-offset:-2px}
+.row.child{margin-left:28px;border-left-width:4px}
+.rtop{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap}
+.rname{flex:1 1 260px;min-width:0;overflow-wrap:anywhere}
+.ppre{color:var(--faint);font-size:13px}
+.rmeta{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none;max-width:100%}
+.pill{border:1.5px solid;border-radius:999px;padding:0 8px;font-size:11px;line-height:18px;white-space:nowrap;font-weight:500}
+.ck{display:inline-flex;flex:none}
+.ck svg{width:16px;height:16px}
+.dt{font:12px var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch;text-align:right}
+.det{display:none;margin-top:12px;font-size:14px}
+.row.open .det{display:block}
+.det dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 14px;margin:0}
+.det dt{color:var(--mute)}
+.det dd{margin:0;overflow-wrap:anywhere}
+.lv{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:500;border:1.5px solid}
+.status{color:var(--mute);font-size:13px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:-4px 0 14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+@media (max-width:600px){
+  main{padding-top:24px}
+  h1{font-size:23px}
+  .card{padding:18px 16px;border-radius:12px}
+  .pct{font-size:44px}
+  .counts{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ph{padding:14px 16px;gap:10px}
+  .pbar{width:52px}
+  .row{padding:10px 14px 10px 12px}
+  .row.child{margin-left:16px}
+  .det dl{grid-template-columns:minmax(0,1fr);gap:2px}
+  .det dt{margin-top:8px}
+  .dt{max-width:18ch}
+}
+</style>
+</head>
+<body>
+<main>
+  <section id="input">
+    <h1>Automation map</h1>
+    <p class="sub">Paste the JSON your AI assistant wrote at the end of the automation-map prompt. The page shows every task in your process, sorted by how much AI does now and how much it could do.</p>
+    <label class="lbl" for="json">Paste the JSON your AI assistant wrote</label>
+    <textarea id="json" spellcheck="false" placeholder='{ "process": "…", "snapshot": "YYYY-MM-DD", "tasks": [ … ] }'></textarea>
+    <div class="actions">
+      <button class="btn primary" id="renderBtn" type="button">Render</button>
+      <span class="hint">or ⌘/Ctrl + Enter</span>
+      <button class="link" id="exampleBtn" type="button">Load example</button>
+      <label class="file">Or open a file: <input type="file" id="fileIn" accept=".json,application/json,text/plain"></label>
+    </div>
+    <div class="error hidden" id="err" role="alert"></div>
+  </section>
+
+  <section id="view" class="hidden">
+    <div class="top">
+      <div class="head">
+        <h1 id="process"></h1>
+        <p class="sub">Each task's left border shows how much AI does now, from grey (mostly manual) through amber (needs your trigger or approval) to deep green (runs on its own). An outlined pill shows the higher level AI could reach, and a check mark means AI can confirm the task worked.</p>
+        <p class="meta" id="meta"></p>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="newBtn" type="button">Paste new data</button>
+        <button class="btn" id="dlBtn" type="button">Download page</button>
+      </div>
+    </div>
+
+    <div class="card" id="summary">
+      <div class="big"><div class="pct" id="pct"></div><div class="pcttxt" id="pcttxt"></div></div>
+      <div class="barlabel"><span>What AI does now</span></div>
+      <div class="bar" id="barNow"></div>
+      <div class="counts" id="counts"></div>
+      <div class="barlabel"><span>What AI could do</span><span id="couldTxt"></span></div>
+      <div class="bar could" id="barCould"></div>
+      <div class="minutes" id="minutes"></div>
+    </div>
+
+    <div class="controls">
+      <div class="chips" id="chips" role="group" aria-label="Filter tasks"></div>
+      <div class="toggles">
+        <button class="link" id="expandAll" type="button">Expand all</button>
+        <button class="link" id="collapseAll" type="button">Collapse all</button>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div id="phases"></div>
+  </section>
+</main>
+
+<script type="application/json" id="baked">null</script>
+<script type="application/json" id="example">{"process": "Fellowship application round (example)", "snapshot": "2026-03-02", "roundStart": "Applications open; last round 12 Jan 2026", "notReached": "Example data: a made-up round, not a real map.", "tasks": [{"phase": "Recruiting", "parent": null, "name": "Post the call for applications", "when": "start", "last": "2026-01-12", "next": "2026-05-11", "freq": "once", "now": 3, "could": 4, "route": "AI drafts the post from last round's and updates the dates; one request publishes it to the website CMS through its API. Needs an API key.", "check": "Fetch the live page and confirm the deadline date matches the round plan.", "checkStatus": "runnable", "minutes": 45, "minutesFrom": "record", "source": "Email 'Call is live' 12 Jan"}, {"phase": "Recruiting", "parent": null, "name": "Email past applicants and partner orgs", "when": "start + 2 days", "last": "2026-01-14", "next": "2026-05-13", "freq": "once", "now": 1, "could": 3, "route": "AI drafts one email per contact list from the post; you review and send.", "check": "Search Sent for one email to each list in the contacts sheet.", "checkStatus": "runnable", "minutes": 60, "minutesFrom": "guess", "source": "Gmail: 'Fellowship applications open' 14 Jan"}, {"phase": "Recruiting", "parent": null, "name": "Answer applicant questions", "when": "start → deadline", "last": "2026-02-01", "next": null, "freq": "per question", "now": 1, "could": 3, "route": "AI drafts replies from the FAQ doc; you approve each.", "check": "Every inbound question has a reply in Sent within 3 days.", "checkStatus": "runnable", "minutes": 120, "minutesFrom": "guess", "source": "Gmail label 'Fellowship Qs'"}, {"phase": "Screening", "parent": null, "name": "Export applications to the review sheet", "when": "deadline + 1 day", "last": "2026-02-10", "next": "2026-06-08", "freq": "once", "now": 2, "could": 5, "route": "A scheduled script pulls form responses into the sheet the morning after the deadline.", "check": "Row count in the sheet equals the form's response count.", "checkStatus": "runnable", "minutes": 40, "minutesFrom": "record", "source": "Session 'export responses' 10 Feb"}, {"phase": "Screening", "parent": null, "name": "Assign two reviewers to each application", "when": "deadline + 2 days", "last": "2026-02-11", "next": "2026-06-09", "freq": "once", "now": 1, "could": 4, "route": "One request balances assignments by reviewer capacity and writes them to the sheet.", "check": "Every row has two different reviewers; no reviewer over capacity.", "checkStatus": "runnable", "minutes": 90, "minutesFrom": "guess", "source": "Review sheet, 'Assignments' tab"}, {"phase": "Screening", "parent": null, "name": "Remind reviewers with unfinished scores", "when": "deadline + 9 days", "last": "2026-02-18", "next": "2026-06-16", "freq": "per reviewer", "now": 1, "could": 5, "route": "Daily scheduled check emails reviewers with empty score cells.", "check": "Each reminder in Sent matches a reviewer with empty cells that day.", "checkStatus": "runnable", "minutes": 30, "minutesFrom": "guess", "source": "Slack DMs to reviewers 18 Feb"}, {"phase": "Interviews", "parent": null, "name": "Invite shortlisted applicants to interview", "when": "deadline + 14 days", "last": "2026-02-23", "next": "2026-06-21", "freq": "per applicant", "now": 3, "could": 4, "route": "AI drafts invitations with the booking link from the shortlist; one command sends them.", "check": "Search Sent for one invite per shortlisted row, with the right booking link.", "checkStatus": "runnable", "minutes": 50, "minutesFrom": "guess", "source": "Gmail: 'Interview invitation' 23 Feb"}, {"phase": "Interviews", "parent": null, "name": "Prepare an interview brief for each applicant", "when": "day before each interview", "last": "2026-02-27", "next": null, "freq": "per applicant", "now": 2, "could": 5, "route": "Calendar trigger: when an interview is booked, AI writes a one-page brief from the application into the interview folder.", "check": "A brief exists, dated before the event, for every interview on the calendar.", "checkStatus": "runnable", "minutes": 150, "minutesFrom": "guess", "source": "Drive folder 'Interview briefs'"}, {"phase": "Interviews", "parent": null, "name": "Record each interview decision", "when": "after each interview", "last": "2026-03-01", "next": null, "freq": "per applicant", "now": 1, "could": 2, "route": "AI fills the sheet from your interview notes; the decision stays yours.", "check": "Every interviewed applicant has a decision in the sheet.", "checkStatus": "presence only", "minutes": 30, "minutesFrom": "guess", "source": "Review sheet, 'Decisions' column"}, {"phase": "Decisions", "parent": null, "name": "Send acceptance and rejection emails", "when": "start + 8 weeks", "last": null, "next": "2026-07-06", "freq": "per applicant", "now": 1, "could": 3, "route": "AI drafts each email from the decisions column; you review and send.", "check": "Each applicant's email in Sent matches their decision in the sheet.", "checkStatus": "runnable", "minutes": 120, "minutesFrom": "guess", "source": "Last round: Gmail drafts 9 Mar 2025"}, {"phase": "Onboarding", "parent": null, "name": "Collect signed agreements", "when": "start + 9 weeks", "last": null, "next": null, "freq": "per fellow", "now": 1, "could": 2, "route": "AI tracks which agreements are back and drafts reminders. Signing is the fellow's step.", "check": "Every fellow has a signed PDF in the agreements folder.", "checkStatus": "needs access", "minutes": 60, "minutesFrom": "guess", "source": "e-signature account (not reachable)"}, {"phase": "Onboarding", "parent": null, "name": "Add fellows to Slack and the calendar series", "when": "start + 10 weeks", "last": null, "next": null, "freq": "per fellow", "now": 1, "could": 4, "route": "One request adds each fellow to the channel and the recurring events.", "check": "Channel members and event guests each match the fellows list.", "checkStatus": "needs access", "minutes": 45, "minutesFrom": "guess", "source": "Slack admin (not reachable)"}, {"phase": "Wrap-up", "parent": null, "name": "Send the end-of-round survey and summarise responses", "when": "end of round", "last": null, "next": null, "freq": "once", "now": 2, "could": 4, "route": "AI sends the survey, then writes the summary from the export; the conclusions stay yours.", "check": "Response count in the summary equals the survey export.", "checkStatus": "runnable", "minutes": 90, "minutesFrom": "guess", "source": "Survey form, last round"}, {"phase": "Wrap-up", "parent": null, "name": "Decide what to change for next round", "when": "end of round", "last": null, "next": null, "freq": "once", "now": 1, "could": 1, "route": "Judgement: stays with you.", "check": "None: only your judgement can tell.", "checkStatus": "none", "minutes": 60, "minutesFrom": "guess", "source": "Retro doc, last round"}]}</script>
+<script>
+(function(){
+"use strict";
+// Captured before anything changes the DOM, so "Download page" can rebuild a clean copy.
+const PRISTINE = "<!doctype html>\n" + document.documentElement.outerHTML;
+const STORE_KEY = "automation-map:last";
+const LEVELS = {
+  5:{name:"Runs on its own", group:"Runs on its own", c:"--l5", s:"--l5s"},
+  4:{name:"You trigger it", group:"Needs your trigger or approval", c:"--l4", s:"--l4s"},
+  3:{name:"You approve it", group:"Needs your trigger or approval", c:"--l3", s:"--l3s"},
+  2:{name:"AI assists", group:"Mostly manual", c:"--l2", s:"--l2s"},
+  1:{name:"Manual", group:"Mostly manual", c:"--l1", s:"--l1s"}
+};
+const STATUSES = ["runnable","presence only","needs access","none"];
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function storeGet(){ try { return localStorage.getItem(STORE_KEY); } catch(e){ return null; } }
+function storeSet(v){ try { localStorage.setItem(STORE_KEY, v); } catch(e){} }
+
+// ---------- parsing and validation ----------
+function stripFence(text){
+  const t = text.trim();
+  const m = t.match(/```[a-zA-Z]*\s*\n([\s\S]*?)\n?```/);
+  return m ? m[1].trim() : t;
+}
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function isRealDate(s){
+  if(!DATE_RE.test(s)) return false;
+  const [y,m,d] = s.split("-").map(Number); const dt = new Date(y,m-1,d);
+  return dt.getFullYear()===y && dt.getMonth()===m-1 && dt.getDate()===d;
+}
+function parseMap(text){
+  const body = stripFence(text);
+  if(!body) throw new Error("The box is empty. Paste the JSON your AI assistant wrote.");
+  let data;
+  try { data = JSON.parse(body); }
+  catch(e){ throw new Error("This isn't valid JSON: " + e.message + ". Copy the whole code block your AI assistant wrote, from the first { to the last }."); }
+  if(!data || typeof data !== "object" || Array.isArray(data)) throw new Error("The JSON should be one object with process, snapshot, roundStart and tasks.");
+  if(!Array.isArray(data.tasks)) throw new Error('The JSON has no "tasks" list.');
+  if(!data.tasks.length) throw new Error('The "tasks" list is empty.');
+  if(data.snapshot != null && data.snapshot !== "" && !isRealDate(String(data.snapshot))) throw new Error(`snapshot is "${data.snapshot}"; use a date like 2026-11-18.`);
+  const names = new Set(data.tasks.map(t => t && t.name));
+  data.tasks.forEach((t,i) => {
+    const label = `task ${i+1}` + (t && typeof t.name === "string" && t.name ? ` ("${t.name}")` : "");
+    if(!t || typeof t !== "object" || Array.isArray(t)) throw new Error(`task ${i+1} isn't an object.`);
+    if(typeof t.name !== "string" || !t.name.trim()) throw new Error(`task ${i+1} has no name.`);
+    if(typeof t.phase !== "string" || !t.phase.trim()) throw new Error(`${label} has no phase.`);
+    for(const k of ["now","could"]){
+      const v = t[k];
+      if(!Number.isInteger(v) || v < 1 || v > 5) throw new Error(`${label} has ${k}: ${JSON.stringify(v)}; levels are whole numbers 1–5.`);
+    }
+    if(t.could < t.now) throw new Error(`${label} has could: ${t.could}, below now: ${t.now}. "could" is the highest level reachable, so it can't be lower than "now".`);
+    for(const k of ["last","next"]){
+      const v = t[k];
+      if(v != null && !(typeof v === "string" && isRealDate(v))) throw new Error(`${label} has ${k}: ${JSON.stringify(v)}; use a date like 2026-11-18, or null.`);
+    }
+    if(t.checkStatus != null && !STATUSES.includes(t.checkStatus)) throw new Error(`${label} has checkStatus: ${JSON.stringify(t.checkStatus)}; use one of: ${STATUSES.join(", ")}.`);
+    if(t.minutes != null && !(typeof t.minutes === "number" && isFinite(t.minutes) && t.minutes >= 0)) throw new Error(`${label} has minutes: ${JSON.stringify(t.minutes)}; use a number of minutes, or null.`);
+    if(t.parent != null && typeof t.parent !== "string") throw new Error(`${label} has parent: ${JSON.stringify(t.parent)}; use the parent task's name, or null.`);
+    if(t.parent && !names.has(t.parent)) throw new Error(`${label} has parent "${t.parent}", but no task has that name.`);
+  });
+  return data;
+}
+
+// ---------- helpers ----------
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function toDate(s){ const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmtDate(s, withYear){
+  const d = toDate(s);
+  return d.getDate() + " " + MONTHS[d.getMonth()] + (withYear ? " " + d.getFullYear() : "");
+}
+function today(){ const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+function hours(min){
+  if(min < 60) return Math.round(min) + " min";
+  const h = min/60; return (h >= 10 ? Math.round(h) : Math.round(h*10)/10) + " hours";
+}
+const CHECK_SVG = (cls) => `<svg viewBox="0 0 16 16" aria-hidden="true">${cls==="run"
+  ? '<circle cx="8" cy="8" r="7.5" fill="var(--l5)"/><path d="M4.6 8.3l2.2 2.2 4.6-4.8" fill="none" stroke="var(--card)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+  : '<circle cx="8" cy="8" r="6.8" fill="none" stroke="var(--faint)" stroke-width="1.3"/><path d="M4.9 8.3l2 2 4.2-4.4" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'}</svg>`;
+const CARET = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// ---------- state ----------
+let DATA = null, TASKS = [], RAW = "";
+let filter = "all";
+const closedPhases = new Set(), openRows = new Set();
+const FILTERS = {
+  all: {label:"All", fn:() => true},
+  due: {label:"Due next 2 weeks", fn:t => { if(!t.next) return false; const d = toDate(t.next), t0 = today(); return d >= t0 && (d - t0)/864e5 <= 14; }},
+  up:  {label:"Could move up", fn:t => t.could > t.now},
+  run: {label:"Check runnable", fn:t => t.checkStatus === "runnable"}
+};
+const FILTER_KEYS = Object.keys(FILTERS);
+
+// ---------- views ----------
+function showInput(){
+  $("view").classList.add("hidden"); $("input").classList.remove("hidden");
+  if(RAW) $("json").value = RAW;
+  $("json").focus();
+}
+function showError(msg){ const e = $("err"); e.textContent = msg; e.classList.remove("hidden"); }
+function clearError(){ $("err").classList.add("hidden"); $("err").textContent = ""; }
+
+function tryRender(text, remember){
+  let data;
+  try { data = parseMap(text); }
+  catch(e){ showError(e.message); return false; }
+  clearError();
+  RAW = stripFence(text);
+  if(remember) storeSet(RAW);
+  load(data);
+  return true;
+}
+
+function load(data){
+  DATA = data;
+  TASKS = data.tasks.map((t,i) => Object.assign({}, t, {i}));
+  filter = "all"; closedPhases.clear(); openRows.clear();
+  $("input").classList.add("hidden"); $("view").classList.remove("hidden");
+  renderHeader(); renderSummary(); renderChips(); renderLegend(); renderPhases();
+  window.scrollTo(0,0);
+}
+
+function renderHeader(){
+  const name = DATA.process || "Automation map";
+  $("process").textContent = name;
+  document.title = name + " · automation map";
+  const parts = [];
+  if(DATA.snapshot) parts.push("Snapshot " + fmtDate(DATA.snapshot, true));
+  parts.push(TASKS.length + (TASKS.length === 1 ? " task" : " tasks"));
+  if(DATA.roundStart) parts.push("Round start: " + DATA.roundStart);
+  $("meta").innerHTML = parts.map(p => `<span>${esc(p)}</span>`).join("");
+}
+
+function stacked(el, key){
+  const total = TASKS.length; el.innerHTML = "";
+  for(const l of [5,4,3,2,1]){
+    const n = TASKS.filter(t => t[key] === l).length; if(!n) continue;
+    const d = document.createElement("div");
+    d.style.width = (n/total*100) + "%"; d.style.background = `var(${LEVELS[l].c})`;
+    d.title = `${LEVELS[l].name}: ${n}`; el.appendChild(d);
+  }
+}
+function renderSummary(){
+  const total = TASKS.length;
+  const above = TASKS.filter(t => t.now > 1).length;
+  const aboveCould = TASKS.filter(t => t.could > 1).length;
+  const strongNow = TASKS.filter(t => t.now >= 4).length, strongCould = TASKS.filter(t => t.could >= 4).length;
+  const grp = key => [[5,5],[3,4],[1,2]].map(([a,b]) => TASKS.filter(t => t[key] >= a && t[key] <= b).length);
+  const [gN, gT, gM] = grp("now"), [cN, cT, cM] = grp("could");
+  $("pct").textContent = Math.round((cN + cT)/total*100) + "%";
+  $("pcttxt").innerHTML = `${cN + cT} of ${total} tasks could run on their own or need only your trigger or approval.` +
+    `<span class="minor">Today: ${gN} run on their own, ${gT} need your trigger or approval, ${gM} are mostly manual. ` +
+    `Could be: ${cN}, ${cT} and ${cM}.</span>`;
+  stacked($("barNow"), "now"); stacked($("barCould"), "could");
+  $("couldTxt").textContent = `${aboveCould} of ${total} above Manual`;
+  $("counts").innerHTML = [5,4,3,2,1].map(l => {
+    const n = TASKS.filter(t => t.now === l).length, c = TASKS.filter(t => t.could === l).length;
+    return `<div class="cnt" data-level="${l}" style="background:var(${LEVELS[l].s});border-top-color:var(${LEVELS[l].c})"><b>${n}</b><span>${LEVELS[l].name}</span><em>could: ${c}</em></div>`;
+  }).join("");
+  const withMin = TASKS.filter(t => typeof t.minutes === "number");
+  const mins = withMin.reduce((a,t) => a + t.minutes, 0);
+  const manualMin = withMin.filter(t => t.now === 1).reduce((a,t) => a + t.minutes, 0);
+  $("minutes").innerHTML = `<b id="minTotal">${hours(mins)}</b> of work by hand per round across these tasks` +
+    (manualMin ? `, ${hours(manualMin)} of it on tasks AI doesn't touch yet.` : ".") +
+    (withMin.length < total ? ` ${total - withMin.length} tasks have no time estimate.` : "");
+}
+
+function renderChips(){
+  const box = $("chips"); box.innerHTML = "";
+  FILTER_KEYS.forEach((k,i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (k === filter ? " on" : ""); b.dataset.f = k;
+    b.setAttribute("aria-pressed", k === filter);
+    b.title = `${FILTERS[k].label} (key ${i+1})`;
+    b.innerHTML = `${esc(FILTERS[k].label)}<span class="n">${TASKS.filter(FILTERS[k].fn).length}</span>`;
+    b.onclick = () => setFilter(k);
+    box.appendChild(b);
+  });
+}
+function setFilter(k){ filter = k; renderChips(); renderPhases(); }
+
+function renderLegend(){
+  $("legend").innerHTML = [5,4,3,2,1].map(l => `<span><i class="sw" style="background:var(${LEVELS[l].c})"></i>${l} ${LEVELS[l].name}</span>`).join("") +
+    `<span><span class="ck">${CHECK_SVG("run")}</span>check runnable</span>` +
+    `<span><span class="ck">${CHECK_SVG("pres")}</span>check confirms presence only</span>`;
+}
+
+// Order tasks inside a phase so children sit right under their parent.
+function orderPhase(list){
+  const byName = new Map(list.map(t => [t.name, t]));
+  const kids = new Map();
+  for(const t of list) if(t.parent && byName.has(t.parent) && t.parent !== t.name){
+    if(!kids.has(t.parent)) kids.set(t.parent, []); kids.get(t.parent).push(t);
+  }
+  const out = [], seen = new Set();
+  const walk = (t, depth) => { if(seen.has(t.i)) return; seen.add(t.i); out.push({t, depth});
+    for(const c of kids.get(t.name) || []) walk(c, depth+1); };
+  for(const t of list) if(!(t.parent && byName.has(t.parent) && t.parent !== t.name)) walk(t, 0);
+  for(const t of list) walk(t, 0);
+  return out;
+}
+
+function dateLabel(t){
+  const yr = DATA.snapshot ? toDate(DATA.snapshot).getFullYear() : today().getFullYear();
+  const wy = s => toDate(s).getFullYear() !== yr;
+  if(t.next) return "next " + fmtDate(t.next, wy(t.next));
+  if(t.last) return "last " + fmtDate(t.last, wy(t.last));
+  return t.when || "";
+}
+
+function renderPhases(){
+  const root = $("phases"); root.innerHTML = "";
+  const fn = FILTERS[filter].fn;
+  const phases = [...new Set(TASKS.map(t => t.phase))];
+  let shown = 0;
+  for(const p of phases){
+    const all = TASKS.filter(t => t.phase === p);
+    const ordered = orderPhase(all);
+    const vis = ordered.filter(o => fn(o.t));
+    if(filter !== "all" && !vis.length) continue;
+    const visIdx = new Set(vis.map(o => o.t.i));
+    const up = all.filter(t => t.now > 1).length;
+    const card = document.createElement("section");
+    card.className = "card phase" + (closedPhases.has(p) ? " closed" : "");
+    card.dataset.phase = p;
+    card.innerHTML = `<button type="button" class="ph" aria-expanded="${!closedPhases.has(p)}"><span class="caret">${CARET}</span><h2>${esc(p)}</h2>` +
+      `<span class="pbar" title="${up} of ${all.length} tasks above Manual"><span style="width:${up/all.length*100}%"></span></span><span class="xy">${up} / ${all.length}</span></button><div class="rows"></div>`;
+    const head = card.querySelector(".ph");
+    head.onclick = () => {
+      const closed = card.classList.toggle("closed");
+      closed ? closedPhases.add(p) : closedPhases.delete(p);
+      head.setAttribute("aria-expanded", !closed);
+    };
+    const rows = card.querySelector(".rows");
+    for(const {t, depth} of vis){
+      shown++;
+      const parentShown = t.parent && depth > 0 && visIdx.has(TASKS.find(x => x.name === t.parent && x.phase === p)?.i);
+      const r = document.createElement("div");
+      r.className = "row" + (parentShown ? " child" : "") + (openRows.has(t.i) ? " open" : "");
+      r.tabIndex = 0; r.setAttribute("role","button"); r.setAttribute("aria-expanded", openRows.has(t.i));
+      r.dataset.i = t.i;
+      r.style.borderLeftColor = `var(${LEVELS[t.now].c})`;
+      const pill = t.could > t.now ? `<span class="pill" title="Could reach: ${esc(LEVELS[t.could].name)}" style="border-color:var(${LEVELS[t.could].c})">→ ${esc(LEVELS[t.could].name)}</span>` : "";
+      const ck = t.checkStatus === "runnable" ? `<span class="ck" title="Check runnable">${CHECK_SVG("run")}</span>`
+        : t.checkStatus === "presence only" ? `<span class="ck" title="Check confirms presence only">${CHECK_SVG("pres")}</span>` : "";
+      const dl = dateLabel(t);
+      const pre = t.parent && !parentShown ? `<span class="ppre">${esc(t.parent)} › </span>` : "";
+      const lvl = l => `<span class="lv" style="border-color:var(${LEVELS[l].c});background:var(${LEVELS[l].s})">${l} · ${esc(LEVELS[l].name)}</span>`;
+      const whenParts = [];
+      if(t.when) whenParts.push(esc(t.when));
+      if(t.last) whenParts.push("last " + esc(fmtDate(t.last, true)));
+      if(t.next) whenParts.push("next " + esc(fmtDate(t.next, true)));
+      r.innerHTML = `<div class="rtop"><span class="rname">${pre}${esc(t.name)}</span><span class="rmeta">${pill}${ck}<span class="dt" title="${esc(dl)}">${esc(dl)}</span></span></div>
+<div class="det"><dl>
+<dt>Now</dt><dd>${lvl(t.now)}</dd>
+${t.could > t.now ? `<dt>Could</dt><dd>${lvl(t.could)}</dd>` : ""}
+${t.route ? `<dt>Route</dt><dd>${esc(t.route)}</dd>` : ""}
+<dt>Check</dt><dd>${t.check ? esc(t.check) + " " : ""}<span class="status">(${esc(t.checkStatus || "no status")})</span></dd>
+${whenParts.length ? `<dt>When</dt><dd>${whenParts.join(" · ")}</dd>` : ""}
+${t.freq ? `<dt>How often</dt><dd>${esc(t.freq)}</dd>` : ""}
+${typeof t.minutes === "number" ? `<dt>Time by hand</dt><dd>~${esc(t.minutes)} min per round</dd>` : ""}
+${t.source ? `<dt>Source</dt><dd>${esc(t.source)}</dd>` : ""}
+</dl></div>`;
+      const toggle = () => {
+        const open = r.classList.toggle("open");
+        open ? openRows.add(t.i) : openRows.delete(t.i);
+        r.setAttribute("aria-expanded", open);
+      };
+      r.addEventListener("click", e => { if(e.target.closest(".det") && window.getSelection().toString()) return; toggle(); });
+      r.addEventListener("keydown", e => { if(e.target === r && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); toggle(); } });
+      rows.appendChild(r);
+    }
+    root.appendChild(card);
+  }
+  if(!shown) root.innerHTML = `<p class="nomatch">No tasks match this filter.</p>`;
+}
+
+function setAllPhases(open){
+  document.querySelectorAll("#phases .phase").forEach(c => {
+    const p = c.dataset.phase;
+    c.classList.toggle("closed", !open);
+    open ? closedPhases.delete(p) : closedPhases.add(p);
+    c.querySelector(".ph").setAttribute("aria-expanded", open);
+  });
+}
+
+// ---------- download ----------
+function download(){
+  const json = JSON.stringify(DATA).replace(/</g, "\\u003c");
+  const html = PRISTINE.replace(/(<script type="application\/json" id="baked">)[\s\S]*?(<\/script>)/, (m,a,b) => a + json + b);
+  const blob = new Blob([html], {type:"text/html"});
+  const slug = (DATA.process || "automation-map").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "automation-map";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = slug + "-automation-map.html";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ---------- wiring ----------
+$("renderBtn").onclick = () => tryRender($("json").value, true);
+$("json").addEventListener("keydown", e => {
+  if(e.key === "Enter" && (e.metaKey || e.ctrlKey)){ e.preventDefault(); tryRender($("json").value, true); }
+});
+$("exampleBtn").onclick = () => { $("json").value = JSON.stringify(JSON.parse($("example").textContent), null, 2); clearError(); $("json").focus(); };
+$("fileIn").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { $("json").value = String(rd.result); tryRender($("json").value, true); e.target.value = ""; };
+  rd.onerror = () => showError("Couldn't read that file.");
+  rd.readAsText(f);
+});
+$("newBtn").onclick = showInput;
+$("dlBtn").onclick = download;
+$("expandAll").onclick = () => setAllPhases(true);
+$("collapseAll").onclick = () => setAllPhases(false);
+document.addEventListener("keydown", e => {
+  if($("view").classList.contains("hidden")) return;
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || "").toLowerCase();
+  if(tag === "textarea" || tag === "input" || e.target.isContentEditable) return;
+  const n = Number(e.key);
+  if(n >= 1 && n <= FILTER_KEYS.length){ e.preventDefault(); setFilter(FILTER_KEYS[n-1]); }
+});
+
+// ---------- start ----------
+(function start(){
+  let baked = null;
+  try { baked = JSON.parse($("baked").textContent); } catch(e){ baked = null; }
+  if(baked){
+    try { parseMap(JSON.stringify(baked)); RAW = JSON.stringify(baked, null, 2); load(baked); return; }
+    catch(e){ showError("The data saved in this page is invalid: " + e.message); }
+  }
+  const saved = storeGet();
+  if(saved){
+    $("json").value = saved;
+    if(tryRender(saved, false)) return;
+  }
+})();
+})();
+</script>
+</body>
+</html>
