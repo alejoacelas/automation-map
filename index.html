@@ -165,7 +165,6 @@ label.lbl{display:block;font-weight:600;margin-bottom:8px}
         <p class="meta" id="meta"></p>
       </div>
       <div class="toolbar">
-        <button class="btn" id="newBtn" type="button">Paste new data</button>
         <button class="btn" id="dlBtn" type="button">Download page</button>
       </div>
     </div>
@@ -290,11 +289,6 @@ const FILTERS = {
 const FILTER_KEYS = Object.keys(FILTERS);
 
 // ---------- views ----------
-function showInput(){
-  $("view").classList.add("hidden"); $("input").classList.remove("hidden");
-  if(RAW) $("json").value = RAW;
-  $("json").focus();
-}
 function showError(msg){ const e = $("err"); e.textContent = msg; e.classList.remove("hidden"); }
 function clearError(){ $("err").classList.add("hidden"); $("err").textContent = ""; }
 
@@ -527,7 +521,6 @@ $("fileIn").addEventListener("change", e => {
   rd.onerror = () => showError("Couldn't read that file.");
   rd.readAsText(f);
 });
-$("newBtn").onclick = showInput;
 $("dlBtn").onclick = download;
 $("expandAll").onclick = () => setAllPhases(true);
 $("collapseAll").onclick = () => setAllPhases(false);
