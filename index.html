@@ -61,20 +61,37 @@ label.lbl{display:block;font-weight:600;margin-bottom:8px}
 .top .head{flex:1 1 420px;min-width:0}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap}
 .meta span+span::before{content:"·";margin:0 7px;color:var(--faint)}
-.big{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
-.pct{font-size:56px;font-weight:700;line-height:1;letter-spacing:-.02em}
-.pcttxt{flex:1 1 260px;font-size:16px}
-.pcttxt .minor{display:block;color:var(--mute);font-size:14px;margin-top:4px}
-.barlabel{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--mute);margin:22px 0 7px}
+.card>h2{font-size:18px;margin:0 0 4px;font-weight:650}
+.card>.lede{color:var(--mute);font-size:14px;margin:0 0 14px}
+.pick{padding:14px 0;border-top:1px solid var(--line)}
+.pick:first-of-type{border-top:0;padding-top:4px}
+.pick h3{font-size:16px;margin:0 0 4px;font-weight:600;display:flex;gap:8px 10px;align-items:center;flex-wrap:wrap}
+.pick h3 a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;cursor:pointer}
+.pick h3 a:hover{text-decoration-color:currentColor}
+.pick p{margin:4px 0;font-size:14px}
+.pick ol{margin:6px 0 4px;padding-left:20px;font-size:14px}.pick li{margin:2px 0}
+.pick .needs{color:var(--mute)}
+.due{margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:14px}
+.due h3{font-size:13px;margin:0 0 6px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.due ul{margin:0;padding-left:18px}.due li{margin:2px 0}
+.due a{color:inherit;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.barlabel{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--mute);margin:16px 0 7px}
+.barlabel:first-child{margin-top:0}
+.basis h3{font-size:14px;margin:14px 0 4px;font-weight:600}
+.basis h3:first-of-type{margin-top:6px}
+.basis p,.basis ul{margin:0;font-size:14px}.basis ul{padding-left:18px}.basis li{margin:3px 0}
+.basis .tk{color:var(--mute)}
+details.notes>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px}
+details.notes>summary::-webkit-details-marker{display:none}
+details.notes>summary h2{font-size:18px;margin:0;font-weight:650;flex:1}
+details.notes[open]>summary .caret{transform:none}
+details.notes:not([open])>summary .caret{transform:rotate(-90deg)}
+details.notes .nnote{margin:10px 0 6px}
+.row.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{background:var(--l3s)}100%{background:transparent}}
 .bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--track);gap:2px}
 .bar div{height:100%}
 .bar.could{height:8px;border-radius:4px;opacity:.85}
-.counts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
-.cnt{border-radius:10px;padding:10px 12px;border-top:4px solid}
-.cnt b{display:block;font-size:24px;line-height:1.1;font-weight:650}
-.cnt span{display:block;font-size:12px;color:var(--mute);line-height:1.3;margin-top:2px}
-.cnt em{font-style:normal;font-size:12px;color:var(--mute);display:block;margin-top:4px}
-.notes h2{font-size:18px;margin:0 0 8px}
 .notes .nnote{margin:0 0 10px;font-size:13px;color:var(--mute)}
 .notes h3{font-size:15px;margin:18px 0 6px}
 .notes ul{margin:4px 0;padding-left:20px}.notes li{margin:3px 0}.notes p{margin:6px 0}
@@ -130,8 +147,6 @@ label.lbl{display:block;font-weight:600;margin-bottom:8px}
   main{padding-top:24px}
   h1{font-size:23px}
   .card{padding:18px 16px;border-radius:12px}
-  .pct{font-size:44px}
-  .counts{grid-template-columns:repeat(3,minmax(0,1fr))}
   .ph{padding:14px 16px;gap:10px}
   .pbar{width:52px}
   .row{padding:10px 14px 10px 12px}
@@ -162,20 +177,24 @@ label.lbl{display:block;font-weight:600;margin-bottom:8px}
     <div class="top">
       <div class="head">
         <h1 id="process"></h1>
-        <p class="sub">Each task's left border shows how much AI does now, from grey (mostly manual) through amber (needs your trigger or approval) to deep green (runs on its own). An outlined pill shows the higher level AI could reach, and a check mark means AI can confirm the task worked.</p>
         <p class="meta" id="meta"></p>
       </div>
       <div class="toolbar">
-        <button class="btn" id="dlShare" type="button" title="Leaves out the process notes, which can name your files, links and organisations">Download to share</button>
+        <button class="btn" id="dlShare" type="button" title="Leaves out the process notes and each task's source, which can name your files, links and organisations">Download to share</button>
         <button class="btn" id="dlAI" type="button" title="Includes the process notes, for Claude Code, Codex or another AI tool">Download for your AI</button>
       </div>
     </div>
 
+    <div class="card" id="start">
+      <h2>Start here</h2>
+      <p class="lede" id="startLede"></p>
+      <div id="picks"></div>
+      <div class="due" id="due"></div>
+    </div>
+
     <div class="card" id="summary">
-      <div class="big"><div class="pct" id="pct"></div><div class="pcttxt" id="pcttxt"></div></div>
-      <div class="barlabel"><span>What AI does now</span></div>
+      <div class="barlabel"><span>What AI does now</span><span id="nowTxt"></span></div>
       <div class="bar" id="barNow"></div>
-      <div class="counts" id="counts"></div>
       <div class="barlabel"><span>What AI could do</span><span id="couldTxt"></span></div>
       <div class="bar could" id="barCould"></div>
       <div class="minutes" id="minutes"></div>
@@ -190,12 +209,13 @@ label.lbl{display:block;font-weight:600;margin-bottom:8px}
     </div>
     <div class="legend" id="legend"></div>
     <div id="phases"></div>
-    <div class="card notes hidden" id="notes"><h2>Process notes</h2><p class="nnote">For the AI that helps you automate these tasks. "Download to share" leaves them out.</p><div id="notesBody"></div></div>
+    <div class="card basis hidden" id="basis"><h2>What this map is based on</h2><div id="basisBody"></div></div>
+    <details class="card notes hidden" id="notes"><summary><span class="caret"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Process notes, for your AI tool</h2></summary><p class="nnote">Where things live, the people by role, the round's timing and your rules, so the AI that helps you automate doesn't have to search again. "Download to share" leaves them out.</p><div id="notesBody"></div></details>
   </section>
 </main>
 
 <script type="application/json" id="baked">null</script>
-<script type="application/json" id="example">{"process": "Fellowship application round (example)", "snapshot": "2026-03-02", "roundStart": "Applications open; last round 12 Jan 2026", "notReached": "Example data: a made-up round, not a real map.", "tasks": [{"phase": "Recruiting", "parent": null, "name": "Post the call for applications", "when": "start", "last": "2026-01-12", "next": "2026-05-11", "freq": "once", "now": 3, "could": 4, "route": "AI drafts the post from last round's and updates the dates; one request publishes it to the website CMS through its API. Needs an API key.", "check": "Fetch the live page and confirm the deadline date matches the round plan.", "checkStatus": "runnable", "minutes": 45, "minutesFrom": "record", "source": "Email 'Call is live' 12 Jan"}, {"phase": "Recruiting", "parent": null, "name": "Email past applicants and partner orgs", "when": "start + 2 days", "last": "2026-01-14", "next": "2026-05-13", "freq": "once", "now": 1, "could": 3, "route": "AI drafts one email per contact list from the post; you review and send.", "check": "Search Sent for one email to each list in the contacts sheet.", "checkStatus": "runnable", "minutes": 60, "minutesFrom": "guess", "source": "Gmail: 'Fellowship applications open' 14 Jan"}, {"phase": "Recruiting", "parent": null, "name": "Answer applicant questions", "when": "start → deadline", "last": "2026-02-01", "next": null, "freq": "per question", "now": 1, "could": 3, "route": "AI drafts replies from the FAQ doc; you approve each.", "check": "Every inbound question has a reply in Sent within 3 days.", "checkStatus": "runnable", "minutes": 120, "minutesFrom": "guess", "source": "Gmail label 'Fellowship Qs'"}, {"phase": "Screening", "parent": null, "name": "Export applications to the review sheet", "when": "deadline + 1 day", "last": "2026-02-10", "next": "2026-06-08", "freq": "once", "now": 2, "could": 5, "route": "A scheduled script pulls form responses into the sheet the morning after the deadline.", "check": "Row count in the sheet equals the form's response count.", "checkStatus": "runnable", "minutes": 40, "minutesFrom": "record", "source": "Session 'export responses' 10 Feb"}, {"phase": "Screening", "parent": null, "name": "Assign two reviewers to each application", "when": "deadline + 2 days", "last": "2026-02-11", "next": "2026-06-09", "freq": "once", "now": 1, "could": 4, "route": "One request balances assignments by reviewer capacity and writes them to the sheet.", "check": "Every row has two different reviewers; no reviewer over capacity.", "checkStatus": "runnable", "minutes": 90, "minutesFrom": "guess", "source": "Review sheet, 'Assignments' tab"}, {"phase": "Screening", "parent": null, "name": "Remind reviewers with unfinished scores", "when": "deadline + 9 days", "last": "2026-02-18", "next": "2026-06-16", "freq": "per reviewer", "now": 1, "could": 5, "route": "Daily scheduled check emails reviewers with empty score cells.", "check": "Each reminder in Sent matches a reviewer with empty cells that day.", "checkStatus": "runnable", "minutes": 30, "minutesFrom": "guess", "source": "Slack DMs to reviewers 18 Feb"}, {"phase": "Interviews", "parent": null, "name": "Invite shortlisted applicants to interview", "when": "deadline + 14 days", "last": "2026-02-23", "next": "2026-06-21", "freq": "per applicant", "now": 3, "could": 4, "route": "AI drafts invitations with the booking link from the shortlist; one command sends them.", "check": "Search Sent for one invite per shortlisted row, with the right booking link.", "checkStatus": "runnable", "minutes": 50, "minutesFrom": "guess", "source": "Gmail: 'Interview invitation' 23 Feb"}, {"phase": "Interviews", "parent": null, "name": "Prepare an interview brief for each applicant", "when": "day before each interview", "last": "2026-02-27", "next": null, "freq": "per applicant", "now": 2, "could": 5, "route": "Calendar trigger: when an interview is booked, AI writes a one-page brief from the application into the interview folder.", "check": "A brief exists, dated before the event, for every interview on the calendar.", "checkStatus": "runnable", "minutes": 150, "minutesFrom": "guess", "source": "Drive folder 'Interview briefs'"}, {"phase": "Interviews", "parent": null, "name": "Record each interview decision", "when": "after each interview", "last": "2026-03-01", "next": null, "freq": "per applicant", "now": 1, "could": 2, "route": "AI fills the sheet from your interview notes; the decision stays yours.", "check": "Every interviewed applicant has a decision in the sheet.", "checkStatus": "presence only", "minutes": 30, "minutesFrom": "guess", "source": "Review sheet, 'Decisions' column"}, {"phase": "Decisions", "parent": null, "name": "Send acceptance and rejection emails", "when": "start + 8 weeks", "last": null, "next": "2026-07-06", "freq": "per applicant", "now": 1, "could": 3, "route": "AI drafts each email from the decisions column; you review and send.", "check": "Each applicant's email in Sent matches their decision in the sheet.", "checkStatus": "runnable", "minutes": 120, "minutesFrom": "guess", "source": "Last round: Gmail drafts 9 Mar 2025"}, {"phase": "Onboarding", "parent": null, "name": "Collect signed agreements", "when": "start + 9 weeks", "last": null, "next": null, "freq": "per fellow", "now": 1, "could": 2, "route": "AI tracks which agreements are back and drafts reminders. Signing is the fellow's step.", "check": "Every fellow has a signed PDF in the agreements folder.", "checkStatus": "needs access", "minutes": 60, "minutesFrom": "guess", "source": "e-signature account (not reachable)"}, {"phase": "Onboarding", "parent": null, "name": "Add fellows to Slack and the calendar series", "when": "start + 10 weeks", "last": null, "next": null, "freq": "per fellow", "now": 1, "could": 4, "route": "One request adds each fellow to the channel and the recurring events.", "check": "Channel members and event guests each match the fellows list.", "checkStatus": "needs access", "minutes": 45, "minutesFrom": "guess", "source": "Slack admin (not reachable)"}, {"phase": "Wrap-up", "parent": null, "name": "Send the end-of-round survey and summarise responses", "when": "end of round", "last": null, "next": null, "freq": "once", "now": 2, "could": 4, "route": "AI sends the survey, then writes the summary from the export; the conclusions stay yours.", "check": "Response count in the summary equals the survey export.", "checkStatus": "runnable", "minutes": 90, "minutesFrom": "guess", "source": "Survey form, last round"}, {"phase": "Wrap-up", "parent": null, "name": "Decide what to change for next round", "when": "end of round", "last": null, "next": null, "freq": "once", "now": 1, "could": 1, "route": "Judgement: stays with you.", "check": "None: only your judgement can tell.", "checkStatus": "none", "minutes": 60, "minutesFrom": "guess", "source": "Retro doc, last round"}], "notes": "## Where things live\n- Applications come in through the website form; responses export to the **review sheet** (Google Sheets).\n- Email is the programme inbox; applicant questions sit under the label `Fellowship Qs`.\n- Interview briefs go in the Drive folder **Interview briefs**.\n- Agreements are signed through the e-signature account, which AI can't reach.\n## Reusable pieces\n- Last round's call for applications and the FAQ doc.\n- Email templates: interview invitation, acceptance, rejection.\n## People, by role\n- Two reviewers per application, from a pool of about eight.\n- Each applicant, shortlisted applicant and fellow.\n## Timing\n- A round starts when applications open; decisions go out about eight weeks later.\n## Your rules\n- Decisions stay with you; AI drafts, you send."}</script>
+<script type="application/json" id="example">{"process": "Fellowship application round (example)", "snapshot": "2026-03-02", "roundStart": "Applications open; last round 12 Jan 2026", "notReached": "Example data: a made-up round, not a real map.", "tasks": [{"phase": "Recruiting", "parent": null, "name": "Post the call for applications", "when": "start", "last": "2026-01-12", "next": "2026-05-11", "freq": "once", "now": 3, "could": 4, "route": "AI drafts the post from last round's and updates the dates; one request publishes it to the website CMS through its API. Needs an API key.", "check": "Fetch the live page and confirm the deadline date matches the round plan.", "checkStatus": "runnable", "minutes": 45, "minutesFrom": "record", "source": "Email 'Call is live' 12 Jan"}, {"phase": "Recruiting", "parent": null, "name": "Email past applicants and partner orgs", "when": "start + 2 days", "last": "2026-01-14", "next": "2026-05-13", "freq": "once", "now": 1, "could": 3, "route": "AI drafts one email per contact list from the post; you review and send.", "check": "Search Sent for one email to each list in the contacts sheet.", "checkStatus": "runnable", "minutes": 60, "minutesFrom": "guess", "source": "Gmail: 'Fellowship applications open' 14 Jan"}, {"phase": "Recruiting", "parent": null, "name": "Answer applicant questions", "when": "start → deadline", "last": "2026-02-01", "next": null, "freq": "per question", "now": 1, "could": 3, "route": "AI drafts replies from the FAQ doc; you approve each.", "check": "Every inbound question has a reply in Sent within 3 days.", "checkStatus": "runnable", "minutes": 120, "minutesFrom": "guess", "source": "Gmail label 'Fellowship Qs'"}, {"phase": "Screening", "parent": null, "name": "Export applications to the review sheet", "when": "deadline + 1 day", "last": "2026-02-10", "next": "2026-06-08", "freq": "once", "now": 2, "could": 5, "route": "A scheduled script pulls form responses into the sheet the morning after the deadline.", "check": "Row count in the sheet equals the form's response count.", "checkStatus": "runnable", "minutes": 40, "minutesFrom": "record", "source": "Session 'export responses' 10 Feb"}, {"phase": "Screening", "parent": null, "name": "Assign two reviewers to each application", "when": "deadline + 2 days", "last": "2026-02-11", "next": "2026-06-09", "freq": "once", "now": 1, "could": 4, "route": "One request balances assignments by reviewer capacity and writes them to the sheet.", "check": "Every row has two different reviewers; no reviewer over capacity.", "checkStatus": "runnable", "minutes": 90, "minutesFrom": "guess", "source": "Review sheet, 'Assignments' tab"}, {"phase": "Screening", "parent": null, "name": "Remind reviewers with unfinished scores", "when": "deadline + 9 days", "last": "2026-02-18", "next": "2026-06-16", "freq": "per reviewer", "now": 1, "could": 5, "route": "Daily scheduled check emails reviewers with empty score cells.", "check": "Each reminder in Sent matches a reviewer with empty cells that day.", "checkStatus": "runnable", "minutes": 30, "minutesFrom": "guess", "source": "Slack DMs to reviewers 18 Feb"}, {"phase": "Interviews", "parent": null, "name": "Invite shortlisted applicants to interview", "when": "deadline + 14 days", "last": "2026-02-23", "next": "2026-06-21", "freq": "per applicant", "now": 3, "could": 4, "route": "AI drafts invitations with the booking link from the shortlist; one command sends them.", "check": "Search Sent for one invite per shortlisted row, with the right booking link.", "checkStatus": "runnable", "minutes": 50, "minutesFrom": "guess", "source": "Gmail: 'Interview invitation' 23 Feb"}, {"phase": "Interviews", "parent": null, "name": "Prepare an interview brief for each applicant", "when": "day before each interview", "last": "2026-02-27", "next": null, "freq": "per applicant", "now": 2, "could": 5, "route": "Calendar trigger: when an interview is booked, AI writes a one-page brief from the application into the interview folder.", "check": "A brief exists, dated before the event, for every interview on the calendar.", "checkStatus": "runnable", "minutes": 150, "minutesFrom": "guess", "source": "Drive folder 'Interview briefs'"}, {"phase": "Interviews", "parent": null, "name": "Record each interview decision", "when": "after each interview", "last": "2026-03-01", "next": null, "freq": "per applicant", "now": 1, "could": 2, "route": "AI fills the sheet from your interview notes; the decision stays yours.", "check": "Every interviewed applicant has a decision in the sheet.", "checkStatus": "presence only", "minutes": 30, "minutesFrom": "guess", "source": "Review sheet, 'Decisions' column"}, {"phase": "Decisions", "parent": null, "name": "Send acceptance and rejection emails", "when": "start + 8 weeks", "last": null, "next": "2026-07-06", "freq": "per applicant", "now": 1, "could": 3, "route": "AI drafts each email from the decisions column; you review and send.", "check": "Each applicant's email in Sent matches their decision in the sheet.", "checkStatus": "runnable", "minutes": 120, "minutesFrom": "guess", "source": "Last round: Gmail drafts 9 Mar 2025"}, {"phase": "Onboarding", "parent": null, "name": "Collect signed agreements", "when": "start + 9 weeks", "last": null, "next": null, "freq": "per fellow", "now": 1, "could": 2, "route": "AI tracks which agreements are back and drafts reminders. Signing is the fellow's step.", "check": "Every fellow has a signed PDF in the agreements folder.", "checkStatus": "needs access", "minutes": 60, "minutesFrom": "guess", "source": "e-signature account (not reachable)"}, {"phase": "Onboarding", "parent": null, "name": "Add fellows to Slack and the calendar series", "when": "start + 10 weeks", "last": null, "next": null, "freq": "per fellow", "now": 1, "could": 4, "route": "One request adds each fellow to the channel and the recurring events.", "check": "Channel members and event guests each match the fellows list.", "checkStatus": "needs access", "minutes": 45, "minutesFrom": "guess", "source": "Slack admin (not reachable)"}, {"phase": "Wrap-up", "parent": null, "name": "Send the end-of-round survey and summarise responses", "when": "end of round", "last": null, "next": null, "freq": "once", "now": 2, "could": 4, "route": "AI sends the survey, then writes the summary from the export; the conclusions stay yours.", "check": "Response count in the summary equals the survey export.", "checkStatus": "runnable", "minutes": 90, "minutesFrom": "guess", "source": "Survey form, last round"}, {"phase": "Wrap-up", "parent": null, "name": "Decide what to change for next round", "when": "end of round", "last": null, "next": null, "freq": "once", "now": 1, "could": 1, "route": "Judgement: stays with you.", "check": "None: only your judgement can tell.", "checkStatus": "none", "minutes": 60, "minutesFrom": "guess", "source": "Retro doc, last round"}], "notes": "## Where things live\n- Applications come in through the website form; responses export to the **review sheet** (Google Sheets).\n- Email is the programme inbox; applicant questions sit under the label `Fellowship Qs`.\n- Interview briefs go in the Drive folder **Interview briefs**.\n- Agreements are signed through the e-signature account, which AI can't reach.\n## Reusable pieces\n- Last round's call for applications and the FAQ doc.\n- Email templates: interview invitation, acceptance, rejection.\n## People, by role\n- Two reviewers per application, from a pool of about eight.\n- Each applicant, shortlisted applicant and fellow.\n## Timing\n- A round starts when applications open; decisions go out about eight weeks later.\n## Your rules\n- Decisions stay with you; AI drafts, you send.", "picks": [{"task": "Remind reviewers with unfinished scores", "why": "Repeats for every reviewer each round, could go from Manual to Runs on its own, and its check is runnable.", "steps": ["Share the review sheet with the AI's Google account, read-only.", "Have AI write a script that lists reviewers with empty score cells and drafts one reminder each.", "Schedule it daily from deadline + 7 days, logging who was reminded."], "needs": "Google Sheets and Gmail access, which you have. No new tool."}, {"task": "Prepare an interview brief for each applicant", "why": "Repeats per shortlisted applicant, could go from AI assists to Runs on its own, and its check is runnable.", "steps": [], "needs": "A calendar trigger, such as a scheduled task that checks new bookings."}], "assumptions": [{"assumed": "You'd let AI send reviewer reminders without approving each one.", "tasks": ["Remind reviewers with unfinished scores"]}, {"assumed": "The website's CMS has an API you can get a key for.", "tasks": ["Post the call for applications"]}]}</script>
 <script>
 (function(){
 "use strict";
@@ -258,6 +278,9 @@ function parseMap(text){
     if(t.parent != null && typeof t.parent !== "string") throw new Error(`${label} has parent: ${JSON.stringify(t.parent)}; use the parent task's name, or null.`);
     if(t.parent && !names.has(t.parent)) throw new Error(`${label} has parent "${t.parent}", but no task has that name.`);
   });
+  if(data.picks != null && !Array.isArray(data.picks)) throw new Error('"picks" should be a list, or left out.');
+  (data.picks || []).forEach((p,i) => { if(!p || typeof p.task !== "string") throw new Error(`pick ${i+1} needs a "task": the name of a task in the map.`); });
+  if(data.assumptions != null && !Array.isArray(data.assumptions)) throw new Error('"assumptions" should be a list, or left out.');
   return data;
 }
 
@@ -310,7 +333,7 @@ function load(data){
   TASKS = data.tasks.map((t,i) => Object.assign({}, t, {i}));
   filter = "all"; closedPhases.clear(); openRows.clear();
   $("input").classList.add("hidden"); $("view").classList.remove("hidden");
-  renderHeader(); renderSummary(); renderChips(); renderLegend(); renderPhases(); renderNotes();
+  renderHeader(); renderStart(); renderSummary(); renderChips(); renderLegend(); renderPhases(); renderBasis(); renderNotes();
   window.scrollTo(0,0);
 }
 
@@ -341,7 +364,6 @@ function renderHeader(){
   const parts = [];
   if(DATA.snapshot) parts.push("Snapshot " + fmtDate(DATA.snapshot, true));
   parts.push(TASKS.length + (TASKS.length === 1 ? " task" : " tasks"));
-  if(DATA.roundStart) parts.push("Round start: " + DATA.roundStart);
   $("meta").innerHTML = parts.map(p => `<span>${esc(p)}</span>`).join("");
 }
 
@@ -354,29 +376,68 @@ function stacked(el, key){
     d.title = `${LEVELS[l].name}: ${n}`; el.appendChild(d);
   }
 }
+function groupCounts(key){
+  return [[5,5],[3,4],[1,2]].map(([a,b]) => TASKS.filter(t => t[key] >= a && t[key] <= b).length);
+}
+function groupText(key){
+  const [n,t,m] = groupCounts(key);
+  return `${n} run on ${n === 1 ? "its" : "their"} own · ${t} need your trigger or approval · ${m} mostly manual`;
+}
 function renderSummary(){
   const total = TASKS.length;
-  const above = TASKS.filter(t => t.now > 1).length;
-  const aboveCould = TASKS.filter(t => t.could > 1).length;
-  const strongNow = TASKS.filter(t => t.now >= 4).length, strongCould = TASKS.filter(t => t.could >= 4).length;
-  const grp = key => [[5,5],[3,4],[1,2]].map(([a,b]) => TASKS.filter(t => t[key] >= a && t[key] <= b).length);
-  const [gN, gT, gM] = grp("now"), [cN, cT, cM] = grp("could");
-  $("pct").textContent = Math.round((cN + cT)/total*100) + "%";
-  $("pcttxt").innerHTML = `${cN + cT} of ${total} tasks could run on their own or need only your trigger or approval.` +
-    `<span class="minor">Today: ${gN} run on their own, ${gT} need your trigger or approval, ${gM} are mostly manual. ` +
-    `Could be: ${cN}, ${cT} and ${cM}.</span>`;
   stacked($("barNow"), "now"); stacked($("barCould"), "could");
-  $("couldTxt").textContent = `${aboveCould} of ${total} above Manual`;
-  $("counts").innerHTML = [5,4,3,2,1].map(l => {
-    const n = TASKS.filter(t => t.now === l).length, c = TASKS.filter(t => t.could === l).length;
-    return `<div class="cnt" data-level="${l}" style="background:var(${LEVELS[l].s});border-top-color:var(${LEVELS[l].c})"><b>${n}</b><span>${LEVELS[l].name}</span><em>could: ${c}</em></div>`;
-  }).join("");
+  $("nowTxt").textContent = groupText("now");
+  $("couldTxt").textContent = groupText("could");
   const withMin = TASKS.filter(t => typeof t.minutes === "number");
   const mins = withMin.reduce((a,t) => a + t.minutes, 0);
-  const manualMin = withMin.filter(t => t.now === 1).reduce((a,t) => a + t.minutes, 0);
+  const upMin = withMin.filter(t => t.could > t.now).reduce((a,t) => a + t.minutes, 0);
   $("minutes").innerHTML = `<b id="minTotal">${hours(mins)}</b> of work by hand per round across these tasks` +
-    (manualMin ? `, ${hours(manualMin)} of it on tasks AI doesn't touch yet.` : ".") +
+    (upMin ? `, ${hours(upMin)} of it on tasks AI could take further.` : ".") +
     (withMin.length < total ? ` ${total - withMin.length} tasks have no time estimate.` : "");
+}
+
+// The tasks to automate first, and what's due soon.
+const findTask = name => TASKS.find(t => t.name === name) || TASKS.find(t => t.name.toLowerCase() === String(name).toLowerCase());
+const taskLink = (name) => { const t = findTask(name); return t ? `<a data-goto="${t.i}">${esc(t.name)}</a>` : esc(name); };
+function dueSoon(){ return TASKS.filter(FILTERS.due.fn).sort((a,b) => a.next < b.next ? -1 : 1); }
+function renderStart(){
+  const picks = Array.isArray(DATA.picks) ? DATA.picks : [];
+  $("startLede").textContent = picks.length
+    ? "The tasks to automate first: they repeat often, could move furthest, and AI can check they worked."
+    : "This map names no tasks to start with. Use the filters below: tasks that could move up and have a runnable check are good candidates.";
+  $("picks").innerHTML = picks.map(p => {
+    const t = findTask(p.task);
+    const lv = t && t.could > t.now ? `<span class="pill" style="border-color:var(${LEVELS[t.could].c})">${esc(LEVELS[t.now].name)} → ${esc(LEVELS[t.could].name)}</span>` : "";
+    const steps = Array.isArray(p.steps) && p.steps.length ? `<ol>${p.steps.map(x => `<li>${esc(x)}</li>`).join("")}</ol>` : "";
+    return `<div class="pick"><h3>${taskLink(p.task)}${lv}</h3>${p.why ? `<p>${esc(p.why)}</p>` : ""}${steps}${p.needs ? `<p class="needs">${esc(p.needs)}</p>` : ""}</div>`;
+  }).join("");
+  const due = dueSoon();
+  $("due").innerHTML = `<h3>Due in the next two weeks</h3>` + (due.length
+    ? `<ul>${due.map(t => `<li>${fmtDate(t.next)}: <a data-goto="${t.i}">${esc(t.name)}</a> <span class="tk">(${esc(LEVELS[t.now].name)}${t.could > t.now ? " → " + esc(LEVELS[t.could].name) : ""})</span></li>`).join("")}</ul>`
+    : `<p>No task in this map has a date in the next two weeks.</p>`);
+}
+
+// Assumptions, sources not reached, and the round used.
+function renderBasis(){
+  const parts = [];
+  const as = Array.isArray(DATA.assumptions) ? DATA.assumptions.filter(a => a && (a.assumed || typeof a === "string")) : [];
+  if(as.length) parts.push(`<h3>Assumptions to correct if they're wrong</h3><ul>${as.map(a => {
+    const text = typeof a === "string" ? a : a.assumed;
+    const tk = Array.isArray(a.tasks) && a.tasks.length ? ` <span class="tk">Affects: ${a.tasks.map(taskLink).join(", ")}.</span>` : "";
+    return `<li>${esc(text)}${tk}</li>`; }).join("")}</ul>`);
+  if(DATA.notReached) parts.push(`<h3>What it couldn't reach</h3><p>${esc(DATA.notReached)}</p>`);
+  if(DATA.roundStart) parts.push(`<h3>The round it mapped</h3><p>${esc(DATA.roundStart)}</p>`);
+  $("basisBody").innerHTML = parts.join("");
+  $("basis").classList.toggle("hidden", !parts.length);
+}
+
+function goTo(i){
+  const t = TASKS[i]; if(!t) return;
+  if(!FILTERS[filter].fn(t)) setFilter("all");
+  closedPhases.delete(t.phase); openRows.add(i); renderPhases();
+  const r = document.querySelector(`#phases .row[data-i="${i}"]`); if(!r) return;
+  r.scrollIntoView({behavior:"smooth", block:"center"});
+  r.classList.remove("flash"); void r.offsetWidth; r.classList.add("flash"); r.focus({preventScroll:true});
 }
 
 function renderChips(){
@@ -501,7 +562,7 @@ function setAllPhases(open){
 // ---------- download ----------
 function download(forShare){
   const data = Object.assign({}, DATA);
-  if(forShare) delete data.notes;
+  if(forShare){ delete data.notes; data.tasks = data.tasks.map(t => { const c = Object.assign({}, t); delete c.source; return c; }); }
   const json = JSON.stringify(data).replace(/</g, "\\u003c");
   const html = PRISTINE.replace(/(<script type="application\/json" id="baked">)[\s\S]*?(<\/script>)/, (m,a,b) => a + json + b);
   const blob = new Blob([html], {type:"text/html"});
@@ -527,6 +588,7 @@ $("fileIn").addEventListener("change", e => {
 });
 $("dlShare").onclick = () => download(true);
 $("dlAI").onclick = () => download(false);
+document.addEventListener("click", e => { const a = e.target.closest("[data-goto]"); if(a){ e.preventDefault(); goTo(+a.dataset.goto); } });
 $("expandAll").onclick = () => setAllPhases(true);
 $("collapseAll").onclick = () => setAllPhases(false);
 document.addEventListener("keydown", e => {
